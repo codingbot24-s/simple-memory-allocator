@@ -84,6 +84,26 @@ void* malloc (size_t size)
 	return (void*)(header + 1);
 }
 
+void free (void *block) 
+{
+    header_t *header, *temp;
+    void *programBreak;
+    if (!block)
+    {
+        return NULL;
+    }
+
+    pthread_mutex_lock(&global_malloc_lock);
+    header = (header_t*)block - 1;
+    
+    programBreak = sbrk(0);
+
+    // check if the block at the end of the heap  
+    
+    
+}
+
+
 int main () 
 {
 	
