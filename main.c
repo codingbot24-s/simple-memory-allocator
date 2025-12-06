@@ -6,19 +6,19 @@
 
 // 16 bytes for memory alignment
 typedef char ALIGN[16];
-typedef union
-{
-    struct
-    {
-        size_t size;
-        unsigned isFree;
-        union header_t *next;
-    } s;
-    ALIGN stub;
 
-} header_t;
+union header {
+	struct {
+		size_t size;
+		unsigned isFree;
+		union header *next;
+	} s;
+	ALIGN stub;
+};
+typedef union header header_t;
 
-header_t *head, *tail;
+header_t * head, *tail;
+
 
 // lock
 pthread_mutex_t global_malloc_lock;
@@ -91,7 +91,7 @@ void free(void *block)
     void *programBreak;
     if (!block)
     {
-        return NULL;
+        return;
     }
 
     pthread_mutex_lock(&global_malloc_lock);
@@ -128,7 +128,7 @@ void free(void *block)
     pthread_mutex_unlock(&global_malloc_lock);
 }
 
-void calloc (size_t num, size_t nsize) 
+void *calloc (size_t num, size_t nsize) 
 {
 
     size_t size;
@@ -152,6 +152,31 @@ void calloc (size_t num, size_t nsize)
     memset(block,0,size);
     return block; 
 }   
+
+void *realloc (void *block, size_t size)
+{
+    header_t *header;
+    void *ret;
+    if (!block || !size)
+    {
+        return malloc(size);
+    }   
+
+    header = (header_t*)block - 1;
+    if (header->s.size >= size)
+    {
+        return block;
+    }
+    ret = malloc(size);
+    if (ret) {
+		
+		memcpy(ret, block, header->s.size);
+		free(block);
+	}
+	return ret;
+       
+}
+
 
 int main()
 {
