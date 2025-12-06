@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <string.h>
+
 
 // 16 bytes for memory alignment
 typedef char ALIGN[16];
@@ -125,6 +127,31 @@ void free(void *block)
     header->s.isFree = 1;
     pthread_mutex_unlock(&global_malloc_lock);
 }
+
+void calloc (size_t num, size_t nsize) 
+{
+
+    size_t size;
+    void* block;
+    if (!num || !nsize)
+    {
+        return NULL;
+    }
+    size = num * nsize;
+    if (nsize != size / num)
+    {
+        return NULL;
+    }
+
+    block = malloc(size);
+    if (!block)
+    {
+        return NULL;
+    }
+    
+    memset(block,0,size);
+    return block; 
+}   
 
 int main()
 {
