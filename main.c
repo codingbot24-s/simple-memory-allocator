@@ -2,28 +2,38 @@
 #include <unistd.h>
 
 
-void* malloc (size_t size) 
+
+// 16 bytes for memory alignment 
+typedef char ALIGN[16];
+typedef union
 {
+    struct 
+    {
+        size_t size;
+        unsigned iszFree;
+        union header_t *next;
+    };
+    ALIGN stub;
     
-    void* block;
-    block =  sbrk(size);
-    if (block == (void*) -1) {
-        return NULL;   
-    }
-	return block;
-}
-
-
-typedef struct 
-{
-    size_t size;
-    unsigned is_free;
-    header_t *next;
-
 }header_t;
 
+header_t *head, *tail;
 
-int main () {
+void* malloc (size_t size) 
+{
+    size_t totalSize;
+    void *block;
+    header_t *header;
+
+    if (!size)
+    {
+        return NULL;
+    }
+    
+}
+
+int main () 
+{
 	
 }
 
